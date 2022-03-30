@@ -1,0 +1,7 @@
+README
+setup.py
+vnf_py.egg-info/PKG-INFO
+vnf_py.egg-info/SOURCES.txt
+vnf_py.egg-info/dependency_links.txt
+vnf_py.egg-info/requires.txt
+vnf_py.egg-info/top_level.txt
