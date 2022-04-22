@@ -35,8 +35,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 #SETTINGS
-EPISODES = 2000
-DISCOUNT = 0.95
+EPISODES = 500
+DISCOUNT = 0.99
 
 #EPSILON SETTINGS
 epsilon = 1
@@ -51,7 +51,7 @@ np.random.seed(1)
 env.seed(1)
 
 #Create RL Agent
-agent = DQNAgent_V1(env, discount=DISCOUNT, double=False)
+agent = DQNAgent_V1(env, discount=DISCOUNT, double=True)
 
 #keep track of best solution
 best_rewards = -math.inf

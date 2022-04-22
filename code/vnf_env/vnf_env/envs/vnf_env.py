@@ -41,7 +41,7 @@ NUM_VNFS_USED_WEIGHT = 10
 class Vnf_Env(gym.Env):
 
     #mandatory
-    def __init__(self, num_vnfs: int = 10, num_hosts: int = 4) -> None:
+    def __init__(self, num_vnfs: int = 30, num_hosts: int = 10) -> None:
         PLACEMENT_MAX = num_hosts
 
         self.num_vnfs = num_vnfs

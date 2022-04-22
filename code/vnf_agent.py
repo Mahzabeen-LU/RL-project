@@ -10,7 +10,7 @@ REPLAY_MEMORY_SIZE = 50000
 MIN_REPLAY_MEMORY_SIZE = 1000
 MINIBATCH_SIZE = 256
 MODEL_NAME = "Test model"
-TARGET_UPDATE_FREQUENCY = 5
+TARGET_UPDATE_FREQUENCY = 64
 
 # Agent class
 class DQNAgent_V1:
@@ -117,11 +117,11 @@ class Dense_Model(tf.keras.Model):
 
   def __init__(self, num_actions):
     super().__init__()
-    self.dense1 = tf.keras.layers.Dense(64, activation=tf.nn.relu)
+    self.dense1 = tf.keras.layers.Dense(256, activation=tf.nn.relu)
     self.dropout1 = keras.layers.Dropout(0.1)
-    self.dense2 = tf.keras.layers.Dense(64, activation=tf.nn.relu)
+    self.dense2 = tf.keras.layers.Dense(256, activation=tf.nn.relu)
     self.dropout2 = keras.layers.Dropout(0.1)
-    self.dense3 = tf.keras.layers.Dense(64, activation=tf.nn.relu)
+    self.dense3 = tf.keras.layers.Dense(256, activation=tf.nn.relu)
     self.dropout3 = keras.layers.Dropout(0.1)
     self.dense3 = tf.keras.layers.Dense(num_actions, activation=tf.nn.softmax)
 
