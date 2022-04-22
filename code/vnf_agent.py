@@ -12,7 +12,6 @@ MINIBATCH_SIZE = 256
 MODEL_NAME = "Test model"
 TARGET_UPDATE_FREQUENCY = 64
 
-# Agent class
 class DQNAgent_V1:
     def __init__(self, env, discount = 0.99, double = True):
         self.discount = discount
@@ -24,11 +23,10 @@ class DQNAgent_V1:
         self.model = self.create_model()
         self.model.compile(loss=tf.keras.losses.MeanSquaredError(), optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001))
 
-        # Target network
+        #target model for comparison
         self.target_model = self.create_model()
         self.target_model.set_weights(self.model.get_weights())
 
-        # replay buffer
         self.replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
 
         # Used to count when to update target network with main network's weights
@@ -38,19 +36,18 @@ class DQNAgent_V1:
     def create_model(self):
         return Dense_Model(self.env.ACTION_SPACE_SIZE)
 
-    # Adds step's data to a memory replay array
+    #add a minibatch sample to the replay memory
     # (observation space, action, reward, new observation space, done)
     def update_replay_memory(self, transition):
         self.replay_memory.append(transition)
 
-    # Trains main network every step during episode
     def train(self, terminal_state, step):
 
-        #Start training when replay buffer is full
+        #only train if replay buffer is sufficiently full
         if len(self.replay_memory) < MIN_REPLAY_MEMORY_SIZE:
             return
 
-        #Randomly sample a minibatch from the replay memory
+        #bootstrap samples
         minibatch = random.sample(self.replay_memory, MINIBATCH_SIZE)
 
         current_states = np.array([self.env.get_state_vector(transition[0][0], transition[0][1], step) for transition in minibatch])
@@ -61,11 +58,12 @@ class DQNAgent_V1:
 
         target_model_newq = self.target_model.predict(new_states)
 
-        #x and y for the nn
+        #x and y for the neural network
         X = []
         y = []
 
         #Enumerate minibatches
+        #this step updates the q values based on the rewards and states
         for idx, (current_state, action, reward, new_state, done) in enumerate(minibatch):
 
             if self.double:
@@ -90,26 +88,26 @@ class DQNAgent_V1:
                 else:
                     new_q = reward
 
-            # Update q value for given state
+            #Update q values
             current_qs = model_q[idx]
             current_qs[action] = new_q
 
             X.append(self.env.get_state_vector(current_state[0], current_state[1], step))
             y.append(current_qs)
 
-        # Fit on all samples as one batch
+        #use the minibatch to fit the model
         self.model.fit(np.array(X), np.array(y), batch_size=MINIBATCH_SIZE, verbose=0, shuffle=False)
 
-        # Update target network counter every episode
+        #increment counter
         if terminal_state:
             self.target_update_counter += 1
 
-        # If counter reaches set value, update target network with weights of main network
+        #every so often update the target models weights
         if self.target_update_counter > TARGET_UPDATE_FREQUENCY:
             self.target_model.set_weights(self.model.get_weights())
             self.target_update_counter = 0
 
-    # Get q value with a prediction
+    #get the predicted q values
     def get_qs(self, state):
         return self.model.predict(np.array(state).reshape(-1, *state.shape))[0]
 

@@ -7,29 +7,6 @@ import random
 import math 
 import matplotlib.pyplot as plt
 
-            #vnfs 20 20 20 100000
-            #vnf weights 20 20 20 1
-            #hosts 60
-
-            #pick and action
-            #consider ramifications
-            #if ok do acction
-            #if not pick different action
-
-            #reduce current step
-            #go to prev vnf
-            #see action chosen
-            #set chance of action to 0
-            #repick action
-            #redo results
-            #continue
-
-            #what constitutes most constrained
-            
-
-
-            # if action is invalid:
-            #     action = random action
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -50,7 +27,6 @@ random.seed(1)
 np.random.seed(1)
 env.seed(1)
 
-#Create RL Agent
 agent = DQNAgent_V1(env, discount=DISCOUNT, double=True)
 
 #keep track of best solution
@@ -59,7 +35,7 @@ best_solution = None
 
 rewards = []
 
-# Iterate over episodes
+#for each episode
 for episode in range(1, EPISODES + 1):
 
     if episode % 1 == 0:
@@ -67,7 +43,7 @@ for episode in range(1, EPISODES + 1):
         print(f"epsilon: {epsilon}")
         print()
 
-    # Restarting episode - reset episode reward and step number
+    #initialize variables
     episode_reward = 0
     step = 0
 
@@ -81,14 +57,18 @@ for episode in range(1, EPISODES + 1):
 
     while not done:
 
+        #used if we only want to select valid actions
         valid = True
 
+        #choose an action
         if np.random.random() > epsilon:
             # Get action from Q table
             qs = agent.get_qs(env.get_state_vector(*current_state)).copy()
             print(qs)
             vnf = env.vnfs[env.curr_step]
         
+            #uncomment to only select valid actions
+            #may not be able to find a solution unless no actions can be taken
             while True:
                 # #if no valid actions
                 # if all(x == 0 for x in qs):
@@ -153,16 +133,18 @@ for episode in range(1, EPISODES + 1):
                 best_rewards = reward
                 best_solution = new_state
 
-            # Transform new continous state to new discrete state and count reward
+            #add reward
             episode_reward += reward
 
-            # Every step we update replay memory and train main network
+            #update the replay memory and attempt to train the agent
             agent.update_replay_memory((current_state, action, reward, new_state, done))
             agent.train(done, step)
 
+            #take next step
             current_state = new_state
             step += 1
 
+        #if there is no valid step just move on
         else:
             print("invalid")
             done = env.check_if_done()
@@ -171,6 +153,7 @@ for episode in range(1, EPISODES + 1):
             env.invalid_placement()
 
         #Every UPDATE_EVERY steps when done print the current results
+        #used for debugging and ensuring everything is working
         if done and not episode % UPDATE_EVERY:
             print(new_state)
             print(reward)
@@ -184,7 +167,10 @@ for episode in range(1, EPISODES + 1):
         epsilon *= EPSILON_DECAY
         epsilon = max(MIN_EPSILON, epsilon)
 
+    #append rewards, can be used for graphing
     rewards.append(env.reward)
+
+#another iteration of the model
 
 # # Iterate over episodes
 # for episode in range(1, EPISODES + 1):
